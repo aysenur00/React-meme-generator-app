@@ -3,34 +3,50 @@ import React from "react"
 
 /**
      * Challenge: 
-     * 1. Set up the text inputs to save to
-     *    the `topText` and `bottomText` state variables.
-     * 2. Replace the hard-coded text on the image with
-     *    the text being saved to state.
+     * As soon as the Meme component loads the first time,
+     * make an API call to "https://api.imgflip.com/get_memes".
+     * 
+     * When the data comes in, save just the memes array part
+     * of that data to the `allMemes` state
+     * 
+     * Think about if there are any dependencies that, if they
+     * changed, you'd want to cause to re-run this function.
+     * 
+     * Hint: for now, don't try to use an async/await function.
+     * Instead, use `.then()` blocks to resolve the promises
+     * from using `fetch`. We'll learn why after this challenge.
      */
 
 export default function Meme() {
-    
+
     const [meme, setMeme] = React.useState({
         topText: "",
         bottomText: "",
         randomImage: "http://i.imgflip.com/1bij.jpg"
     })
     console.log(meme)
-    const [allMemeImages, setAllMemeImages] = React.useState(memesData)
+    const [allMemes, setAllMemes] = React.useState([])
 
+    React.useEffect(() => {
+        fetch("https://api.imgflip.com/get_memes")
+            .then(res => res.json())
+            .then(data => setAllMemes(data.data.memes))
+
+    }, [])
     function handleClick() {
-        const memes = allMemeImages.data.memes
-        const randomIndex = Math.floor(Math.random() * memes.length)
-        setMeme(prevState => ({
-            ...prevState,
-            randomImage: memes[randomIndex].url
-        }))
+
+        if (allMemes.length > 0) {
+            const randomIndex = Math.floor(Math.random() * allMemes.length)
+            setMeme(prevState => ({
+                ...prevState,
+                randomImage: allMemes[randomIndex].url
+            }))
+        }
     }
     function handleChange(event) {
         const { name, value } = event.target
-        setMeme((prevData)=>{
-            return{
+        setMeme((prevData) => {
+            return {
                 ...prevData,
                 [name]: value
             }
@@ -61,7 +77,7 @@ export default function Meme() {
 
             </div>
             <div className="meme">
-                <img src={meme.randomImage} className="meme--image" />
+                <img src={meme.randomImage} className="meme--image" alt="meme" />
                 <h2 className="meme--text top">{meme.topText}</h2>
                 <h2 className="meme--text bottom">{meme.bottomText}</h2>
             </div>
